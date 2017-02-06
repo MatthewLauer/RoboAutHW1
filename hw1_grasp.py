@@ -109,7 +109,14 @@ class RoboHandler:
     self.grasps_ordered_noisy = self.grasps_ordered.copy() #you should change the order of self.grasps_ordered_noisy
     #TODO set the score with your evaluation function (over random samples) and sort
 
+    for grasp in self.grasps_ordered_noisy:
+      grasp = sample_random_grasp(grasp)
+      grasp[self.graspindices.get('performance')] = self.eval_grasp(grasp)
 
+    # sort
+    order = np.argsort(self.grasps_ordered_noisy[:,self.graspindices.get('performance')[0]])
+    order = order[::-1]
+    self.grasps_ordered_noisy = self.grasps_ordered_noisy[order]
   # function to evaluate grasps
   # returns a score, which is some metric of the grasp
   # higher score should be a better grasp
