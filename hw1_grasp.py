@@ -48,12 +48,12 @@ class RoboHandler:
   def __init__(self):
     self.openrave_init()
     self.problem_init()
-
+    
     #order grasps based on your own scoring metric
-    self.order_grasps()
+    #self.order_grasps()
 
     #order grasps with noise
-    self.order_grasps_noisy()
+    #self.order_grasps_noisy()
 
 
   # the usual initialization for openrave
@@ -169,13 +169,16 @@ class RoboHandler:
     RAND_DIST_SIGMA = 0.01 #TODO you may want to change this
     pos_orig = grasp[self.graspindices['igrasppos']]
     #TODO set a random position
-
-
+    grasp[self.graspindices['igrasppos']] = pos_orig + np.random.normal(0,RAND_DIST_SIGMA)
+    
     #sample random orientation
     RAND_ANGLE_SIGMA = np.pi/24 #TODO you may want to change this
     dir_orig = grasp[self.graspindices['igraspdir']]
     roll_orig = grasp[self.graspindices['igrasproll']]
     #TODO set the direction and roll to be random
+
+    grasp[self.graspindices['igraspdir']] = dir_orig + np.random.normal(0,RAND_ANGLE_SIGMA)
+    grasp[self.graspindices['igrasproll']] = roll_orig + np.random.normal(0,RAND_ANGLE_SIGMA)
 
     return grasp
 
@@ -202,5 +205,6 @@ class RoboHandler:
 if __name__ == '__main__':
   robo = RoboHandler()
   #time.sleep(10000) #to keep the openrave window open
-
+  import IPython
+  IPython.embed()
   
