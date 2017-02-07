@@ -182,7 +182,7 @@ class RoboHandler:
 
 
   #displays the grasp
-  def show_grasp(self, grasp, delay=.5):
+  def show_grasp(self, grasp, delay=1000.5):
     with openravepy.RobotStateSaver(self.gmodel.robot):
       with self.gmodel.GripperVisibility(self.gmodel.manip):
         time.sleep(.10) # let viewer update?
