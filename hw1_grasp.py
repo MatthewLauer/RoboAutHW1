@@ -101,14 +101,17 @@ class RoboHandler:
     
     # sort!
     order = np.argsort(self.grasps_ordered[:,self.graspindices.get('performance')[0]])
+    #maximum of sigma_min
     order = order[::-1]
     self.grasps_ordered = self.grasps_ordered[order]
 
   def eval_grasp_noisy(self, grasp):
-    performance = 0
-    for i in range(1,200):
+    performance = 0.0
+    for i in range(1,10):
       rangrasp = self.sample_random_grasp(grasp)
-      performance += self.eval_grasp(rangrasp)
+      val = self.eval_grasp(rangrasp)
+      if val < performance:
+         performance = val
     return performance  
 
   # order the grasps - but instead of evaluating the grasp, evaluate random perturbations of the grasp 
@@ -116,7 +119,7 @@ class RoboHandler:
     self.grasps_ordered_noisy = self.grasps_ordered.copy() #you should change the order of self.grasps_ordered_noisy
     #TODO set the score with your evaluation function (over random samples) and sort
 
-    for grasp in self.grasps_ordered_noisy[:20]:
+    for grasp in self.grasps_ordered_noisy:#[:20]:
       grasp[self.graspindices.get('performance')] = self.eval_grasp_noisy(grasp)
 
     # sort
@@ -153,7 +156,7 @@ class RoboHandler:
           #print(G);
           G = np.concatenate((G,wt),axis =1);
           
-          #G = np.array(G,w);
+          #G = np.array(G,w);quit
         #SVD
         #print("G shape == ",G.shape);
         if not G.size:
@@ -165,6 +168,7 @@ class RoboHandler:
         #print(sigma_min);
 
         #TODO use G to compute scrores as discussed in class
+        #return len(contacts)
         return sigma_min*len(contacts)*len(contacts) #change this
 
       except openravepy.planning_error,e:
@@ -220,7 +224,7 @@ class RoboHandler:
 
 
   #displays the grasp
-  def show_grasp(self, grasp, delay=.5):
+  def show_grasp(self, grasp, delay=5):
     with openravepy.RobotStateSaver(self.gmodel.robot):
       with self.gmodel.GripperVisibility(self.gmodel.manip):
         time.sleep(.10) # let viewer update?
@@ -244,6 +248,4 @@ if __name__ == '__main__':
   #time.sleep(10000) #to keep the openrave window open
   #show_grasp(robo.grasps_ordered[0],1000);
   
-  import IPython
-  IPython.embed()
   
