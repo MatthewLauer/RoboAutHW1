@@ -69,9 +69,9 @@ class RoboHandler:
 
   # problem specific initialization - load target and grasp module
   def problem_init(self):
-    self.target_kinbody = self.env.ReadKinBodyURI('models/objects/champagne.iv')
+    #self.target_kinbody = self.env.ReadKinBodyURI('models/objects/champagne.iv')
     #self.target_kinbody = self.env.ReadKinBodyURI('models/objects/winegoblet.iv')
-    #self.target_kinbody = self.env.ReadKinBodyURI('models/objects/black_plastic_mug.iv')
+    self.target_kinbody = self.env.ReadKinBodyURI('models/objects/black_plastic_mug.iv')
 
     #change the location so it's not under the robot
     T = self.target_kinbody.GetTransform()
