@@ -50,10 +50,10 @@ class RoboHandler:
     #order grasps based on your own scoring metric
     import IPython
     IPython.embed()
-    self.order_grasps()
+    #self.order_grasps()
 
     #order grasps with noise
-    self.order_grasps_noisy()
+    #self.order_grasps_noisy()
 
 
   # the usual initialization for openrave
@@ -69,8 +69,8 @@ class RoboHandler:
 
   # problem specific initialization - load target and grasp module
   def problem_init(self):
-    self.target_kinbody = self.env.ReadKinBodyURI('models/objects/champagne.iv')
-    #self.target_kinbody = self.env.ReadKinBodyURI('models/objects/winegoblet.iv')
+    #self.target_kinbody = self.env.ReadKinBodyURI('models/objects/champagne.iv')
+    self.target_kinbody = self.env.ReadKinBodyURI('models/objects/winegoblet.iv')
     #self.target_kinbody = self.env.ReadKinBodyURI('models/objects/black_plastic_mug.iv')
 
     #change the location so it's not under the robot
@@ -104,15 +104,20 @@ class RoboHandler:
     order = order[::-1]
     self.grasps_ordered = self.grasps_ordered[order]
 
-  
+  def eval_grasp_noisy(self, grasp):
+    performance = 0
+    for i in range(1,200):
+      rangrasp = self.sample_random_grasp(grasp)
+      performance += self.eval_grasp(rangrasp)
+    return performance  
+
   # order the grasps - but instead of evaluating the grasp, evaluate random perturbations of the grasp 
   def order_grasps_noisy(self):
     self.grasps_ordered_noisy = self.grasps_ordered.copy() #you should change the order of self.grasps_ordered_noisy
     #TODO set the score with your evaluation function (over random samples) and sort
 
-    for grasp in self.grasps_ordered_noisy:
-      grasp = self.sample_random_grasp(grasp)
-      grasp[self.graspindices.get('performance')] = self.eval_grasp(grasp)
+    for grasp in self.grasps_ordered_noisy[:20]:
+      grasp[self.graspindices.get('performance')] = self.eval_grasp_noisy(grasp)
 
     # sort
     order = np.argsort(self.grasps_ordered_noisy[:,self.graspindices.get('performance')[0]])
@@ -150,7 +155,9 @@ class RoboHandler:
           
           #G = np.array(G,w);
         #SVD
-        print("G shape == ",G.shape);
+        #print("G shape == ",G.shape);
+        if not G.size:
+          return 0.00
         U, s, V = np.linalg.svd(G, full_matrices=True);
         s = s[::-1];
         print("s==",s);
@@ -158,7 +165,7 @@ class RoboHandler:
         #print(sigma_min);
 
         #TODO use G to compute scrores as discussed in class
-        return sigma_min #change this
+        return sigma_min*len(contacts)*len(contacts) #change this
 
       except openravepy.planning_error,e:
         #you get here if there is a failure in planning
@@ -195,13 +202,13 @@ class RoboHandler:
     grasp = grasp_in.copy()
 
     #sample random position
-    RAND_DIST_SIGMA = 0.03 #TODO you may want to change this
+    RAND_DIST_SIGMA = 0.01 #TODO you may want to change this
     pos_orig = grasp[self.graspindices['igrasppos']]
     #TODO set a random position
     grasp[self.graspindices['igrasppos']] = pos_orig + np.random.normal(0,RAND_DIST_SIGMA,(1,3))
     
     #sample random orientation
-    RAND_ANGLE_SIGMA = np.pi/18 #TODO you may want to change this
+    RAND_ANGLE_SIGMA = np.pi/60 #TODO you may want to change this
     dir_orig = grasp[self.graspindices['igraspdir']]
     roll_orig = grasp[self.graspindices['igrasproll']]
     #TODO set the direction and roll to be random
