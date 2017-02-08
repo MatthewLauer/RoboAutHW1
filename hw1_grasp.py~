@@ -168,8 +168,8 @@ class RoboHandler:
         #print(sigma_min);
 
         #TODO use G to compute scrores as discussed in class
-        return len(contacts)
-        #return sigma_min*len(contacts)*len(contacts) #change this
+        #return len(contacts)
+        return sigma_min*len(contacts)*len(contacts) #change this
 
       except openravepy.planning_error,e:
         #you get here if there is a failure in planning
